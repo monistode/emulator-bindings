@@ -7,6 +7,7 @@ use processors::{create_processor, ProcessorType};
 use registers::RegisterState;
 use wasm_bindgen::prelude::*;
 
+pub use processors::available_processors;
 mod memory;
 mod processor;
 mod processors;
