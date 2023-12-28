@@ -153,9 +153,9 @@ impl WasmProcessor for CiscProcessorWrapper {
         result
     }
 
-    fn load_executable(&mut self, binary: &[u8]) {
+    fn load_executable(&mut self, binary: &[u8]) -> Result<(), String> {
         let executable = Executable::new(binary);
         // log(&format!("Executable: {:?}", executable));
-        self.processor.load_executable(&executable);
+        self.processor.load_executable(&executable)
     }
 }

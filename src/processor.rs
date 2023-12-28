@@ -22,5 +22,5 @@ pub trait WasmProcessor {
     fn get_memory(&mut self) -> Vec<MemoryBlock>;
     fn set_memory(&mut self, mem_type: MemoryType, index: usize, value: u8) -> bool;
     fn get_registers(&mut self) -> Vec<RegisterState>;
-    fn load_executable(&mut self, binary: &[u8]);
+    fn load_executable(&mut self, binary: &[u8]) -> Result<(), String>;
 }

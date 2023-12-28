@@ -16,15 +16,15 @@ mod registers;
 #[wasm_bindgen]
 pub struct Runner {
     processor: Box<dyn WasmProcessor>,
+    message: Result<(), String>,
 }
 
 #[wasm_bindgen]
 impl Runner {
     #[wasm_bindgen(constructor)]
     pub fn new(processor_type: ProcessorType, binary: &[u8]) -> Self {
-        Runner {
-            processor: create_processor(processor_type, binary),
-        }
+        let (processor, message) = create_processor(processor_type, binary);
+        Runner { processor, message }
     }
 
     #[wasm_bindgen]
@@ -59,5 +59,13 @@ impl Runner {
     #[wasm_bindgen]
     pub fn get_registers(&mut self) -> Vec<RegisterState> {
         self.processor.get_registers()
+    }
+
+    #[wasm_bindgen]
+    pub fn error_message(&self) -> Option<String> {
+        match &self.message {
+            Ok(_) => None,
+            Err(message) => Some(message.clone()),
+        }
     }
 }
