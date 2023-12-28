@@ -27,29 +27,58 @@ impl StackProcessorWrapper {
 }
 
 impl WasmProcessor for StackProcessorWrapper {
-    fn run(&mut self, output: &js_sys::Function) -> WasmProcessorContinue {
-        let result = self.processor.run_command(|port, value| {
-            let _ = output.call2(
-                &JsValue::NULL,
-                &JsValue::from_f64(port as f64),
-                &JsValue::from_f64(value as f64),
-            );
-        });
+    fn run(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+    ) -> WasmProcessorContinue {
+        let result = self.processor.run_command(
+            |port, value| {
+                let _ = output.call2(
+                    &JsValue::NULL,
+                    &JsValue::from_f64(port as f64),
+                    &JsValue::from_f64(value as f64),
+                );
+            },
+            |port| {
+                let value = input.call1(&JsValue::NULL, &JsValue::from_f64(port as f64));
+                if let Ok(value) = value {
+                    value.as_f64().unwrap() as u16
+                } else {
+                    0
+                }
+            },
+        );
         match result {
             ProcessorContinue::KeepRunning => WasmProcessorContinue::Continue,
             ProcessorContinue::Halt => WasmProcessorContinue::Halt,
         }
     }
 
-    fn run_n(&mut self, output: &js_sys::Function, n: usize) -> WasmProcessorContinue {
+    fn run_n(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+        n: usize,
+    ) -> WasmProcessorContinue {
         for _ in 0..n {
-            let result = self.processor.run_command(|port, value| {
-                let _ = output.call2(
-                    &JsValue::NULL,
-                    &JsValue::from_f64(port as f64),
-                    &JsValue::from_f64(value as f64),
-                );
-            });
+            let result = self.processor.run_command(
+                |port, value| {
+                    let _ = output.call2(
+                        &JsValue::NULL,
+                        &JsValue::from_f64(port as f64),
+                        &JsValue::from_f64(value as f64),
+                    );
+                },
+                |port| {
+                    let value = input.call1(&JsValue::NULL, &JsValue::from_f64(port as f64));
+                    if let Ok(value) = value {
+                        value.as_f64().unwrap() as u16
+                    } else {
+                        0
+                    }
+                },
+            );
             match result {
                 ProcessorContinue::KeepRunning => {}
                 ProcessorContinue::Halt => return WasmProcessorContinue::Halt,

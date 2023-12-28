@@ -27,13 +27,22 @@ impl Runner {
     }
 
     #[wasm_bindgen]
-    pub fn run(&mut self, output: &js_sys::Function) -> WasmProcessorContinue {
-        self.processor.run(output)
+    pub fn run(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+    ) -> WasmProcessorContinue {
+        self.processor.run(output, input)
     }
 
     #[wasm_bindgen]
-    pub fn run_n(&mut self, output: &js_sys::Function, n: usize) -> WasmProcessorContinue {
-        self.processor.run_n(output, n)
+    pub fn run_n(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+        n: usize,
+    ) -> WasmProcessorContinue {
+        self.processor.run_n(output, input, n)
     }
 
     #[wasm_bindgen]
