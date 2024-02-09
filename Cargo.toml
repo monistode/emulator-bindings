@@ -1,6 +1,6 @@
 [package]
 name = "monistode-emulator-bindings"
-version = "0.1.9"
+version = "0.1.10"
 authors = ["rizerphe"]
 edition = "2018"
 description = "Web assembly bindings for the monistode emulator"
@@ -22,7 +22,7 @@ wasm-bindgen = "0.2.84"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 js-sys = "0.3.66"
 ux = "0.1.5"
-monistode-emulator = "0.1.7"
+monistode-emulator = "0.1.9"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
