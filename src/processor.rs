@@ -7,6 +7,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 pub enum WasmProcessorContinue {
     Continue,
+    Error,
     Halt,
 }
 

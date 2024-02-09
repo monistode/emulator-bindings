@@ -1,6 +1,6 @@
 [package]
 name = "monistode-emulator-bindings"
-version = "0.1.6"
+version = "0.1.9"
 authors = ["rizerphe"]
 edition = "2018"
 description = "Web assembly bindings for the monistode emulator"

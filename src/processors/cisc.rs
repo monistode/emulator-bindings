@@ -50,6 +50,7 @@ impl WasmProcessor for CiscProcessorWrapper {
         );
         match result {
             ProcessorContinue::KeepRunning => WasmProcessorContinue::Continue,
+            ProcessorContinue::Error => WasmProcessorContinue::Error,
             ProcessorContinue::Halt => WasmProcessorContinue::Halt,
         }
     }
@@ -80,6 +81,7 @@ impl WasmProcessor for CiscProcessorWrapper {
             );
             match result {
                 ProcessorContinue::KeepRunning => {}
+                ProcessorContinue::Error => return WasmProcessorContinue::Error,
                 ProcessorContinue::Halt => return WasmProcessorContinue::Halt,
             }
         }
