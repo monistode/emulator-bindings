@@ -78,6 +78,16 @@ pub fn available_processors() -> Vec<ProcessorMetadata> {
             type_: ProcessorType::Stack,
         },
         ProcessorMetadata {
+            name: "Accumulator".to_string(),
+            description: "Accumulator-based processor".to_string(),
+            type_: ProcessorType::Acc,
+        },
+        ProcessorMetadata {
+            name: "RISC".to_string(),
+            description: "RISC processor".to_string(),
+            type_: ProcessorType::Risc,
+        },
+        ProcessorMetadata {
             name: "CISC".to_string(),
             description: "CISC processor".to_string(),
             type_: ProcessorType::Cisc,
