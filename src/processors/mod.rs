@@ -2,13 +2,17 @@ use wasm_bindgen::prelude::*;
 
 use crate::processor::WasmProcessor;
 
+pub mod acc;
 pub mod cisc;
+pub mod risc;
 pub mod stack;
 
 #[wasm_bindgen]
 #[derive(Clone)]
 pub enum ProcessorType {
     Stack,
+    Acc,
+    Risc,
     Cisc,
 }
 
@@ -19,6 +23,16 @@ pub fn create_processor(
     match processor_type {
         ProcessorType::Stack => {
             let mut wrapper = stack::StackProcessorWrapper::new();
+            let result = wrapper.load_executable(binary);
+            (Box::new(wrapper), result)
+        }
+        ProcessorType::Acc => {
+            let mut wrapper = acc::AccProcessorWrapper::new();
+            let result = wrapper.load_executable(binary);
+            (Box::new(wrapper), result)
+        }
+        ProcessorType::Risc => {
+            let mut wrapper = risc::RiscProcessorWrapper::new();
             let result = wrapper.load_executable(binary);
             (Box::new(wrapper), result)
         }
