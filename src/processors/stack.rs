@@ -1,11 +1,13 @@
+use monistode_binutils::Architecture;
+use monistode_binutils::Serializable;
 use ux::u6;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 
 use crate::registers::RegisterState;
 use crate::{MemoryBlock, MemoryType, WasmProcessor, WasmProcessorContinue};
+use monistode_binutils::Executable;
 use monistode_emulator::common::{Processor, ProcessorContinue};
-use monistode_emulator::executable::Executable;
 use monistode_emulator::stack_processor;
 
 #[wasm_bindgen]
@@ -153,7 +155,13 @@ impl WasmProcessor for StackProcessorWrapper {
     }
 
     fn load_executable(&mut self, binary: &[u8]) -> Result<(), String> {
-        let executable = Executable::new(binary);
+        let executable = Executable::deserialize(binary)
+            .map_err(|_| "Failed to load executable")?
+            .1;
+        log(&format!("Executable: {:?}", executable));
+        if !matches!(executable.architecture(), Architecture::Stack) {
+            return Err("Invalid architecture".to_string());
+        }
         // log(&format!("Executable: {:?}", executable));
         self.processor.load_executable(&executable)
     }

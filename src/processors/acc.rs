@@ -3,9 +3,9 @@ use wasm_bindgen::JsValue;
 
 use crate::registers::RegisterState;
 use crate::{MemoryBlock, MemoryType, WasmProcessor, WasmProcessorContinue};
+use monistode_binutils::Executable;
 use monistode_emulator::acc_processor;
 use monistode_emulator::common::{Processor, ProcessorContinue};
-use monistode_emulator::executable::Executable;
 
 #[wasm_bindgen]
 extern "C" {
@@ -148,8 +148,6 @@ impl WasmProcessor for AccProcessorWrapper {
     }
 
     fn load_executable(&mut self, binary: &[u8]) -> Result<(), String> {
-        let executable = Executable::new(binary);
-        // log(&format!("Executable: {:?}", executable));
-        self.processor.load_executable(&executable)
+        unimplemented!();
     }
 }
