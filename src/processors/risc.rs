@@ -163,4 +163,8 @@ impl WasmProcessor for RiscProcessorWrapper {
         // log(&format!("Executable: {:?}", executable));
         self.processor.load_executable(&executable)
     }
+
+    fn peek_stack(&mut self, n: u8) -> u16 {
+        self.processor.peek_stack(n)
+    }
 }

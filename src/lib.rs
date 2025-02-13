@@ -16,15 +16,19 @@ mod registers;
 #[wasm_bindgen]
 pub struct Runner {
     processor: Box<dyn WasmProcessor>,
-    message: Result<(), String>,
 }
 
 #[wasm_bindgen]
 impl Runner {
     #[wasm_bindgen(constructor)]
-    pub fn new(processor_type: ProcessorType, binary: &[u8]) -> Self {
-        let (processor, message) = create_processor(processor_type, binary);
-        Runner { processor, message }
+    pub fn new(processor_type: ProcessorType) -> Self {
+        let processor = create_processor(processor_type);
+        Runner { processor }
+    }
+
+    #[wasm_bindgen]
+    pub fn load_program(&mut self, program: &[u8]) -> Result<(), String> {
+        self.processor.load_executable(program)
     }
 
     #[wasm_bindgen]
@@ -62,10 +66,7 @@ impl Runner {
     }
 
     #[wasm_bindgen]
-    pub fn error_message(&self) -> Option<String> {
-        match &self.message {
-            Ok(_) => None,
-            Err(message) => Some(message.clone()),
-        }
+    pub fn peek_stack(&mut self, n: u8) -> u16 {
+        self.processor.peek_stack(n)
     }
 }

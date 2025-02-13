@@ -150,4 +150,8 @@ impl WasmProcessor for AccProcessorWrapper {
     fn load_executable(&mut self, binary: &[u8]) -> Result<(), String> {
         unimplemented!();
     }
+
+    fn peek_stack(&mut self, n: u8) -> u16 {
+        self.processor.peek_stack(n)
+    }
 }

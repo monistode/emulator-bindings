@@ -24,4 +24,5 @@ pub trait WasmProcessor {
     fn set_memory(&mut self, mem_type: MemoryType, index: usize, value: u8) -> bool;
     fn get_registers(&mut self) -> Vec<RegisterState>;
     fn load_executable(&mut self, binary: &[u8]) -> Result<(), String>;
+    fn peek_stack(&mut self, n: u8) -> u16;
 }

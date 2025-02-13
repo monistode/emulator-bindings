@@ -16,30 +16,23 @@ pub enum ProcessorType {
     Cisc,
 }
 
-pub fn create_processor(
-    processor_type: ProcessorType,
-    binary: &[u8],
-) -> (Box<dyn WasmProcessor>, Result<(), String>) {
+pub fn create_processor(processor_type: ProcessorType) -> Box<dyn WasmProcessor> {
     match processor_type {
         ProcessorType::Stack => {
-            let mut wrapper = stack::StackProcessorWrapper::new();
-            let result = wrapper.load_executable(binary);
-            (Box::new(wrapper), result)
+            let wrapper = stack::StackProcessorWrapper::new();
+            Box::new(wrapper)
         }
         ProcessorType::Acc => {
-            let mut wrapper = acc::AccProcessorWrapper::new();
-            let result = wrapper.load_executable(binary);
-            (Box::new(wrapper), result)
+            let wrapper = acc::AccProcessorWrapper::new();
+            Box::new(wrapper)
         }
         ProcessorType::Risc => {
-            let mut wrapper = risc::RiscProcessorWrapper::new();
-            let result = wrapper.load_executable(binary);
-            (Box::new(wrapper), result)
+            let wrapper = risc::RiscProcessorWrapper::new();
+            Box::new(wrapper)
         }
         ProcessorType::Cisc => {
-            let mut wrapper = cisc::CiscProcessorWrapper::new();
-            let result = wrapper.load_executable(binary);
-            (Box::new(wrapper), result)
+            let wrapper = cisc::CiscProcessorWrapper::new();
+            Box::new(wrapper)
         }
     }
 }
