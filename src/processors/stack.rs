@@ -158,7 +158,6 @@ impl WasmProcessor for StackProcessorWrapper {
         let executable = Executable::deserialize(binary)
             .map_err(|_| "Failed to load executable")?
             .1;
-        log(&format!("Executable: {:?}", executable));
         if !matches!(executable.architecture(), Architecture::Stack) {
             return Err("Invalid architecture".to_string());
         }
