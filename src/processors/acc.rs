@@ -1,3 +1,5 @@
+use monistode_binutils::Architecture;
+use monistode_binutils::Serializable;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
 
@@ -148,7 +150,14 @@ impl WasmProcessor for AccProcessorWrapper {
     }
 
     fn load_executable(&mut self, binary: &[u8]) -> Result<(), String> {
-        unimplemented!();
+        let executable = Executable::deserialize(binary)
+            .map_err(|_| "Failed to load executable")?
+            .1;
+        if !matches!(executable.architecture(), Architecture::Accumulator) {
+            return Err("Invalid architecture".to_string());
+        }
+        // log(&format!("Executable: {:?}", executable));
+        self.processor.load_executable(&executable)
     }
 
     fn peek_stack(&mut self, n: u8) -> u16 {
