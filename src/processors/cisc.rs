@@ -1,10 +1,11 @@
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
 
-use crate::processor::WasmProcessor;
 use crate::registers::RegisterState;
-use crate::{MemoryBlock, MemoryType};
+use crate::{MemoryBlock, MemoryType, WasmProcessor, WasmProcessorContinue};
+use monistode_binutils::Executable;
 use monistode_emulator::cisc_processor;
-use monistode_emulator::common::Processor;
+use monistode_emulator::common::{Processor, ProcessorContinue};
 
 #[wasm_bindgen]
 extern "C" {
@@ -25,15 +26,66 @@ impl CiscProcessorWrapper {
 }
 
 impl WasmProcessor for CiscProcessorWrapper {
-    type ProcessorType = cisc_processor::CiscProcessor;
-    type InstructionType = u8;
-
-    fn get_processor(&self) -> &Self::ProcessorType {
-        &self.processor
+    fn run(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+    ) -> WasmProcessorContinue {
+        let result = self.processor.run_command(
+            |port, value| {
+                let _ = output.call2(
+                    &JsValue::NULL,
+                    &JsValue::from_f64(port as f64),
+                    &JsValue::from_f64(value as f64),
+                );
+            },
+            |port| {
+                let value = input.call1(&JsValue::NULL, &JsValue::from_f64(port as f64));
+                if let Ok(value) = value {
+                    value.as_f64().unwrap() as u16
+                } else {
+                    0
+                }
+            },
+        );
+        match result {
+            ProcessorContinue::KeepRunning => WasmProcessorContinue::Continue,
+            ProcessorContinue::Error => WasmProcessorContinue::Error,
+            ProcessorContinue::Halt => WasmProcessorContinue::Halt,
+        }
     }
 
-    fn get_processor_mut(&mut self) -> &mut Self::ProcessorType {
-        &mut self.processor
+    fn run_n(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+        n: usize,
+    ) -> WasmProcessorContinue {
+        for _ in 0..n {
+            let result = self.processor.run_command(
+                |port, value| {
+                    let _ = output.call2(
+                        &JsValue::NULL,
+                        &JsValue::from_f64(port as f64),
+                        &JsValue::from_f64(value as f64),
+                    );
+                },
+                |port| {
+                    let value = input.call1(&JsValue::NULL, &JsValue::from_f64(port as f64));
+                    if let Ok(value) = value {
+                        value.as_f64().unwrap() as u16
+                    } else {
+                        0
+                    }
+                },
+            );
+            match result {
+                ProcessorContinue::KeepRunning => {}
+                ProcessorContinue::Error => return WasmProcessorContinue::Error,
+                ProcessorContinue::Halt => return WasmProcessorContinue::Halt,
+            }
+        }
+        WasmProcessorContinue::Continue
     }
 
     fn get_memory(&mut self) -> Vec<MemoryBlock> {
@@ -92,11 +144,11 @@ impl WasmProcessor for CiscProcessorWrapper {
             self.processor.registers.r[1].into(),
         ));
         result.push(RegisterState::new(
-            "R02".to_string(),
+            "R10".to_string(),
             self.processor.registers.r[2].into(),
         ));
         result.push(RegisterState::new(
-            "R03".to_string(),
+            "R11".to_string(),
             self.processor.registers.r[3].into(),
         ));
 

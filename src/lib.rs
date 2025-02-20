@@ -1,10 +1,8 @@
-#![feature(async_closure)]
-
 mod utils;
 use std::u8;
 
 use crate::memory::{MemoryBlock, MemoryType};
-use crate::processor::{WasmProcessor, WasmProcessorContinue, WasmProcessorEnum};
+use crate::processor::{WasmProcessor, WasmProcessorContinue};
 use processors::{create_processor, ProcessorType};
 use registers::RegisterState;
 use wasm_bindgen::prelude::*;
@@ -17,7 +15,7 @@ mod registers;
 
 #[wasm_bindgen]
 pub struct Runner {
-    processor: WasmProcessorEnum,
+    processor: Box<dyn WasmProcessor>,
 }
 
 #[wasm_bindgen]
@@ -34,17 +32,22 @@ impl Runner {
     }
 
     #[wasm_bindgen]
-    pub async fn run(
+    pub fn run(
         &mut self,
         output: &js_sys::Function,
         input: &js_sys::Function,
     ) -> WasmProcessorContinue {
-        let processor = unsafe { std::mem::transmute::<_, &'static mut WasmProcessorEnum>(self) };
-        let output = unsafe { std::mem::transmute::<_, &'static js_sys::Function>(output) };
-        let input = unsafe { std::mem::transmute::<_, &'static js_sys::Function>(input) };
-        let value = processor.run(output, input);
-        let pinned = std::pin::Pin::from(value);
-        pinned.await
+        self.processor.run(output, input)
+    }
+
+    #[wasm_bindgen]
+    pub fn run_n(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+        n: usize,
+    ) -> WasmProcessorContinue {
+        self.processor.run_n(output, input, n)
     }
 
     #[wasm_bindgen]

@@ -1,11 +1,12 @@
 use monistode_binutils::Architecture;
 use monistode_binutils::Serializable;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
 
 use crate::registers::RegisterState;
-use crate::{MemoryBlock, MemoryType, WasmProcessor};
+use crate::{MemoryBlock, MemoryType, WasmProcessor, WasmProcessorContinue};
 use monistode_binutils::Executable;
-use monistode_emulator::common::Processor;
+use monistode_emulator::common::{Processor, ProcessorContinue};
 use monistode_emulator::risc_processor;
 
 #[wasm_bindgen]
@@ -27,15 +28,66 @@ impl RiscProcessorWrapper {
 }
 
 impl WasmProcessor for RiscProcessorWrapper {
-    type ProcessorType = risc_processor::RiscProcessor;
-    type InstructionType = u8;
-
-    fn get_processor(&self) -> &Self::ProcessorType {
-        &self.processor
+    fn run(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+    ) -> WasmProcessorContinue {
+        let result = self.processor.run_command(
+            |port, value| {
+                let _ = output.call2(
+                    &JsValue::NULL,
+                    &JsValue::from_f64(port as f64),
+                    &JsValue::from_f64(value as f64),
+                );
+            },
+            |port| {
+                let value = input.call1(&JsValue::NULL, &JsValue::from_f64(port as f64));
+                if let Ok(value) = value {
+                    value.as_f64().unwrap() as u16
+                } else {
+                    0
+                }
+            },
+        );
+        match result {
+            ProcessorContinue::KeepRunning => WasmProcessorContinue::Continue,
+            ProcessorContinue::Error => WasmProcessorContinue::Error,
+            ProcessorContinue::Halt => WasmProcessorContinue::Halt,
+        }
     }
 
-    fn get_processor_mut(&mut self) -> &mut Self::ProcessorType {
-        &mut self.processor
+    fn run_n(
+        &mut self,
+        output: &js_sys::Function,
+        input: &js_sys::Function,
+        n: usize,
+    ) -> WasmProcessorContinue {
+        for _ in 0..n {
+            let result = self.processor.run_command(
+                |port, value| {
+                    let _ = output.call2(
+                        &JsValue::NULL,
+                        &JsValue::from_f64(port as f64),
+                        &JsValue::from_f64(value as f64),
+                    );
+                },
+                |port| {
+                    let value = input.call1(&JsValue::NULL, &JsValue::from_f64(port as f64));
+                    if let Ok(value) = value {
+                        value.as_f64().unwrap() as u16
+                    } else {
+                        0
+                    }
+                },
+            );
+            match result {
+                ProcessorContinue::KeepRunning => {}
+                ProcessorContinue::Error => return WasmProcessorContinue::Error,
+                ProcessorContinue::Halt => return WasmProcessorContinue::Halt,
+            }
+        }
+        WasmProcessorContinue::Continue
     }
 
     fn get_memory(&mut self) -> Vec<MemoryBlock> {

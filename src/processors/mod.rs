@@ -1,19 +1,6 @@
-use std::future::Future;
-
-use js_sys::Promise;
-use ux::u6;
 use wasm_bindgen::prelude::*;
 
-use crate::{
-    memory::{MemoryBlock, MemoryType},
-    processor::{WasmProcessor, WasmProcessorContinue, WasmProcessorEnum},
-    registers::RegisterState,
-};
-use monistode_emulator::{
-    acc_processor, cisc_processor,
-    common::{Processor, ProcessorContinue},
-    risc_processor, stack_processor,
-};
+use crate::processor::WasmProcessor;
 
 pub mod acc;
 pub mod cisc;
@@ -29,12 +16,24 @@ pub enum ProcessorType {
     Cisc,
 }
 
-pub fn create_processor(processor_type: ProcessorType) -> WasmProcessorEnum {
+pub fn create_processor(processor_type: ProcessorType) -> Box<dyn WasmProcessor> {
     match processor_type {
-        ProcessorType::Stack => WasmProcessorEnum::Stack(stack::StackProcessorWrapper::new()),
-        ProcessorType::Acc => WasmProcessorEnum::Acc(acc::AccProcessorWrapper::new()),
-        ProcessorType::Risc => WasmProcessorEnum::Risc(risc::RiscProcessorWrapper::new()),
-        ProcessorType::Cisc => WasmProcessorEnum::Cisc(cisc::CiscProcessorWrapper::new()),
+        ProcessorType::Stack => {
+            let wrapper = stack::StackProcessorWrapper::new();
+            Box::new(wrapper)
+        }
+        ProcessorType::Acc => {
+            let wrapper = acc::AccProcessorWrapper::new();
+            Box::new(wrapper)
+        }
+        ProcessorType::Risc => {
+            let wrapper = risc::RiscProcessorWrapper::new();
+            Box::new(wrapper)
+        }
+        ProcessorType::Cisc => {
+            let wrapper = cisc::CiscProcessorWrapper::new();
+            Box::new(wrapper)
+        }
     }
 }
 
